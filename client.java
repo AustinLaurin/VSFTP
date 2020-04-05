@@ -15,13 +15,14 @@ public class Client
         // establish a connection 
         try
         { 
+            //SOCKET, CONNECT
             socket = new Socket(address, port); 
-            System.out.println("Connected"); 
+            System.out.println("(opens connection to R)"); 
   
-            // takes input from terminal 
+            // takes input from terminal to know when it can talk again
             input  = new DataInputStream(System.in); 
   
-            // sends output to the socket 
+            // sends output to the socket where the server hears it
             out    = new DataOutputStream(socket.getOutputStream()); 
         } 
         catch(UnknownHostException u) 
@@ -36,8 +37,8 @@ public class Client
         // string to read message from input 
         String line = ""; 
   
-        // keep reading until "Over" is input 
-        while (!line.equals("Over")) 
+        // keep reading until "DONE" is input 
+        while (!line.equals("DONE")) 
         { 
             try
             { 
@@ -50,7 +51,7 @@ public class Client
             } 
         } 
   
-        // close the connection 
+        // CLOSE
         try
         { 
             input.close(); 
@@ -65,6 +66,6 @@ public class Client
   
     public static void main(String args[]) 
     { 
-        Client client = new Client("127.0.0.1", 5000); 
+        Client client = new Client("127.0.0.1", 50001); 
     } 
-}
+} 
