@@ -11,7 +11,7 @@ public class Server
     private DataInputStream in       =  null;
 
     //binary authentication array, zero indicates lack of authentication
-    private static int[] authent = {0, 0}; 
+    private static int[] authent = {0, 0};
     private static String password = "";
   
     // constructor with port 
@@ -66,7 +66,21 @@ public class Server
                     else if(authent[1] == 0){
                         System.out.println("-You must enter a valid PASS command");
                         continue;
-                    } 
+                    }
+
+                    //main commands switch case
+                    switch(command){
+                        case "LIST":
+                            LIST();
+                            break;
+                        case "KILL":
+                            KILL(line.substring(5));
+                            break;
+                        case "RETR":
+                            break;
+                        default:
+                            System.out.println("-Invalid command");            
+                    }
   
                 } 
                 catch(IOException i) 
@@ -137,9 +151,35 @@ public class Server
             return false;
         }
     }
+
+    //lists the files in the root folder
+    private static void LIST(){
+        System.out.println("+root");
+        java.io.File root  = new java.io.File("root");
+        for(java.io.File f: root.listFiles())
+            System.out.println(f.getName());
+    }
+
+    //deletes the file specified by client 
+    private static void KILL(String filename){
+        boolean deleted = false;
+        java.io.File root = new java.io.File("root");
+        for(java.io.File f: root.listFiles()){
+            if(f.getName().equals(filename)){
+                deleted = true;
+                f.delete();
+            }
+        } 
+        
+        if(deleted)
+            System.out.println("+" + filename + " deleted");
+        else
+            System.out.println("-Not deleted because file does not exist");    
+   
+    }
   
     public static void main(String args[]) 
     { 
         Server server = new Server(50001); 
     } 
-}
+} 
