@@ -22,12 +22,12 @@ public class Server
         { 
             //SOCKET, BIND
             server = new ServerSocket(port); 
-            System.out.println("Server started"); 
+            System.out.println("S: Server started"); 
             //LISTEN
-            System.out.println("(listening for connection)"); 
+            System.out.println("S: (listening for connection)"); 
             //ACCEPT
             socket = server.accept(); 
-            System.out.println("Hello from VSFTP Service"); 
+            System.out.println("S: Hello from VSFTP Service"); 
   
             // takes input from the client socket 
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream())); 
@@ -42,7 +42,8 @@ public class Server
                 { 
                     //converts client input to a string
                     line = in.readUTF(); 
-                    System.out.println(line);
+                    System.out.println("C: " + line);
+                    System.out.print("S: ");
                     command = line.substring(0,4);//extract first four letters
 
                     if(line.equals("DONE"))
