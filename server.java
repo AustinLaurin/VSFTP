@@ -42,7 +42,7 @@ public class Server
                 { 
                     //converts client input to a string
                     line = in.readUTF(); 
-                    //System.out.println("You said " + line);
+                    System.out.println(line);
                     command = line.substring(0,4);//extract first four letters
 
                     if(line.equals("DONE"))
