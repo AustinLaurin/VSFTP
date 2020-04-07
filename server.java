@@ -8,11 +8,15 @@ public class Server
     //initialize socket and input stream 
     private Socket          socket   = null; 
     private ServerSocket    server   = null; 
-    private DataInputStream in       =  null;
+    private static DataInputStream in       = null;
 
     //binary authentication array, zero indicates lack of authentication
-    private static int[] authent = {0, 0};
-    private static String password = "";
+    private static int[] authent    = {0, 0};
+    private static String password  = "";
+
+    //data transmission
+    private static String line     = "";
+    private static String command  = ""; 
   
     // constructor with port 
     public Server(int port) 
@@ -27,13 +31,10 @@ public class Server
             System.out.println("S: (listening for connection)"); 
             //ACCEPT
             socket = server.accept(); 
-            System.out.println("S: Hello from VSFTP Service"); 
+            System.out.println("S: Hello from VSFTP Service");
   
             // takes input from the client socket 
             in = new DataInputStream(new BufferedInputStream(socket.getInputStream())); 
-  
-            String line = "";
-            String command = ""; 
   
             // reads message from client until "DONE" is sent 
             while (!line.equals("DONE")) 
@@ -78,6 +79,7 @@ public class Server
                             KILL(line.substring(5));
                             break;
                         case "RETR":
+                            RETR(line.substring(5));
                             break;
                         default:
                             System.out.println("-Invalid command");            
@@ -103,9 +105,9 @@ public class Server
 
     //searches for username in file and returns corresponding password
     private static String findUsers(String user){
-        String password = "";
-        String attempt = "";
-        File data = new File("users.txt");
+        String  password = "";
+        String  attempt  = "";
+        File    data     = new File("users.txt");
         Scanner scan;
 
         try{
@@ -177,6 +179,49 @@ public class Server
         else
             System.out.println("-Not deleted because file does not exist");    
    
+    }
+
+    private static void RETR(String fileName){
+        try{
+            java.io.File fileIfFound = null;
+
+            java.io.File root = new java.io.File("root");
+            for(java.io.File f: root.listFiles()) 
+                if(f.getName().equals(fileName)) 
+                    fileIfFound = f;
+                                
+            if(fileIfFound != null) {
+                System.out.println("#" + fileIfFound.length());
+                
+                line = in.readUTF(); 
+                System.out.println(line);
+                command = line.substring(0,4);
+                while(true) {
+                if(command.equals("STOP")) {
+                    System.out.println("+Ok, RETR aborted");
+                    return;
+                }
+                else if(command.equals("SEND")) {
+                    Scanner input = new Scanner(fileIfFound);
+                    while(input.hasNextLine()) {
+                        System.out.println(input.nextLine());
+                    }
+                    return;
+                }
+                else 
+                    System.out.println("-Invalid input received");
+                }
+
+            }
+            else {
+                System.out.println("-File doesn't exist");
+            }
+
+            return;
+        }
+        catch (Exception e){
+            System.out.println("-Houston, we have a problem");
+        }
     }
   
     public static void main(String args[]) 
