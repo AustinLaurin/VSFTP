@@ -1,13 +1,21 @@
 // A Java program for a Client 
 import java.net.*; 
 import java.io.*; 
+import java.util.concurrent.TimeUnit;
   
 public class Client 
 { 
     // initialize socket and input output streams 
-    private Socket socket            = null; 
-    private DataInputStream  input   = null; 
-    private DataOutputStream out     = null; 
+    private static Socket socket            = null; 
+    private static DataInputStream  input   = null; 
+    private static DataOutputStream out     = null; 
+
+    //file tranfer storage stuff
+    private static String filename = "";
+
+    // string to read message from input 
+    private static String line = ""; 
+    private static String command = "";
   
     // constructor to put ip address and port 
     public Client(String address, int port) 
@@ -34,36 +42,72 @@ public class Client
             System.out.println(i); 
         } 
   
-        // string to read message from input 
-        String line = ""; 
+
   
         // keep reading until "DONE" is input 
         while (!line.equals("DONE")) 
         { 
             try
             { 
+                System.out.print("C: ");
                 line = input.readLine(); 
                 out.writeUTF(line); 
+
+                //command string
+                command = line.substring(0, 4);
+
+                //file reading commands
+                if(command.equals("RETR")){
+                    filename = line.substring(5);
+                }
+                else if(command.equals("SEND")){
+                    FileOutputStream junior = new FileOutputStream(filename);
+                    junior.write("hewwo".getBytes());//TEST STRING, CHANGE LATER
+
+                    File babyFile = new File(filename);
+
+                    //timeout after 30 seconds
+                    try{
+                        TimeUnit.SECONDS.sleep(30);
+                    } catch (InterruptedException ie){
+                        Thread.currentThread().interrupt();
+                    }
+
+                    if(babyFile.length() == 0){
+                        System.out.println("C: Connection Timed Out");
+                        line = "DONE";
+                        try{
+                            out.writeUTF("DONE");
+                        }catch(Exception e){
+                            System.out.println(e);
+                        }
+
+                        junior.close();
+                    }    
+
+                }
+
+            }
+            catch(IOException i) 
+            { 
+                System.out.println(i); 
+            }
+
+        } 
+            // CLOSE
+            try
+            { 
+                input.close(); 
+                out.close(); 
+                socket.close(); 
             } 
             catch(IOException i) 
             { 
                 System.out.println(i); 
             } 
-        } 
-  
-        // CLOSE
-        try
-        { 
-            input.close(); 
-            out.close(); 
-            socket.close(); 
-        } 
-        catch(IOException i) 
-        { 
-            System.out.println(i); 
-        } 
     } 
   
+
     public static void main(String args[]) 
     { 
         Client client = new Client("127.0.0.1", 50001); 
