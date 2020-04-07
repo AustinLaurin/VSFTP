@@ -18,6 +18,9 @@ public class Server
     //data transmission
     private static String line     = "";
     private static String command  = ""; 
+
+    //let's say we said done after retrieve
+    private static boolean doneInRetrieve = false;
   
     // constructor with port 
     public Server(int port) 
@@ -53,7 +56,7 @@ public class Server
                     System.out.print("S: ");
                     command = line.substring(0,4);//extract first four letters
 
-                    if(line.equals("DONE"))
+                    if(line.equals("DONE") || doneInRetrieve)
                         break;
 
                     //initial authentication sequence
@@ -272,6 +275,11 @@ public class Server
                             clientSendy.writeUTF(packet);
                         }
                         clientSendy.writeUTF("*"); 
+                        input.close();
+                        return;
+                    }
+                    else if(command.equals("DONE")) {
+                        doneInRetrieve = true;
                         return;
                     }
                     else {
